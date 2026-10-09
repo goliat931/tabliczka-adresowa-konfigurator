@@ -8,7 +8,7 @@ Statyczna wersja konfiguratora dla GitHub Pages. Nie wymaga serwera ani wysyłan
 - Nazwa ulicy wielkimi literami, małymi literami lub w zapisie wpisanym; litery numeru domu są zawsze wielkie.
 - Większy, wyśrodkowany układ nazwy ulicy po wyłączeniu prefiksu „ULICA”.
 - Pełna lista 30 miejscowości gminy Wilga, Garwolin i własna nazwa.
-- Dobór herbu Wilgi lub Garwolina, palety kolorów i własnych barw.
+- Dobór herbu Wilgi lub Garwolina, możliwość rezygnacji z herbu, palety kolorów i własnych barw.
 - Ostrzeżenie o wymaganej palecie „Zieleń Wilgi” wyłącznie dla Osiedla Wilga.
 
 ## Lokalny podgląd

@@ -232,6 +232,8 @@
     .downloads { display: flex; flex-wrap: wrap; gap: 12px; padding: 0 21px 18px; color: var(--success); font-size: 13px; }
     .downloads a { color: var(--leaf-dark); font-weight: 700; text-underline-offset: 3px; }
     .page-note { margin: 16px 0 0; color: #52685b; font-size: 12px; line-height: 1.5; }
+    .site-footer { max-width: 1480px; margin: 0 auto; padding: 0 32px 24px; color: var(--muted); font-size: 13px; }
+    .site-footer a { color: var(--leaf-dark); font-weight: 700; text-underline-offset: 3px; }
     @media (max-width: 880px) {
       main { padding: 24px; }
       .workbench { grid-template-columns: minmax(270px, 340px) minmax(0, 1fr); gap: 14px; }
@@ -250,6 +252,7 @@
       .proof-stage { min-height: 300px; padding: 20px; }
       .proof-footer { align-items: stretch; flex-direction: column; }
       .save-button { width: 100%; }
+      .site-footer { padding: 0 16px 24px; }
     }
     @media (max-width: 390px) {
       .topbar-inner { padding-inline: 12px; }
@@ -332,8 +335,9 @@
             <select id="crest" name="herb">
               <option value="wilga">Wilga</option>
               <option value="garwolin">Garwolin</option>
+              <option value="brak">Bez herbu</option>
             </select>
-            <p class="help">Dobór herbu jest automatyczny. Możesz zmienić go ręcznie.</p>
+            <p class="help">Dobór herbu jest automatyczny. Możesz go zmienić ręcznie lub wybrać tabliczkę bez herbu.</p>
           </div>
         </section>
         <section class="form-section" aria-labelledby="palette-heading">
@@ -397,5 +401,8 @@
     </div>
     <p class="page-note">Pliki są przygotowywane w tej przeglądarce. PNG ma rozdzielczość 300 DPI; tekst w SVG jest zamieniony na krzywe.</p>
   </main>
+  <footer class="site-footer">
+    Autor: <a href="https://github.com/goliat931" target="_blank" rel="noopener noreferrer">@goliat931 na GitHub</a>
+  </footer>
 </body>
 </html>

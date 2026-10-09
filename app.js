@@ -208,12 +208,14 @@ function buildSvg(config) {
   appendText(svg, config.numer, 700, 640, 1060, 1180, foreground);
   appendText(svg, config.miejscowosc.toLocaleUpperCase("pl-PL"), 500, 57, 1280, 1000, background, 10);
 
-  const crestData = crests[config.herb];
-  svg.append(svgNode("image", {
-    x: 1386, y: 1211, width: 66, height: 73,
-    preserveAspectRatio: "xMidYMid meet",
-    href: crestData.dataUrl
-  }));
+  if (config.herb !== "brak") {
+    const crestData = crests[config.herb];
+    svg.append(svgNode("image", {
+      x: 1386, y: 1211, width: 66, height: 73,
+      preserveAspectRatio: "xMidYMid meet",
+      href: crestData.dataUrl
+    }));
+  }
   return new XMLSerializer().serializeToString(svg);
 }
 
@@ -359,7 +361,7 @@ async function prepareDownloads(event) {
       escapeFilename(config.ulica),
       escapeFilename(config.numer),
       config.rozmiar.replace(".", "-"),
-      config.herb,
+      config.herb === "brak" ? "bez-herbu" : config.herb,
       config.paleta
     ].join("_");
     downloadLink(document.querySelector("#download-svg"), new Blob([svg], {type: "image/svg+xml;charset=utf-8"}), `${filename}.svg`);
