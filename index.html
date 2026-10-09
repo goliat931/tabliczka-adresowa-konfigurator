@@ -1,0 +1,401 @@
+<!doctype html>
+<html lang="pl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#174c38">
+  <meta name="description" content="Skonfiguruj i pobierz gotową do druku tabliczkę adresową dla Wilgi, okolic lub Garwolina.">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 40'%3E%3Crect width='40' height='40' rx='7' fill='%23174c38'/%3E%3Ctext x='50%25' y='72%25' text-anchor='middle' font-family='Arial,sans-serif' font-weight='700' font-size='28' fill='white'%3EW%3C/text%3E%3C/svg%3E">
+  <title>Konfigurator tabliczek — Osiedle Wilga</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --forest: #174c38;
+      --leaf: #28764f;
+      --leaf-dark: #1e5d3e;
+      --ink: #20342a;
+      --muted: #52685b;
+      --paper: #fff;
+      --ground: #f2f5ef;
+      --line: #d7e0d6;
+      --error: #9f2d26;
+      --success: #236b42;
+      --focus: #a86112;
+      --radius: 9px;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: var(--ground);
+      color: var(--ink);
+      font-family: Inter, "Segoe UI", Arial, sans-serif;
+      font-size: 15px;
+      line-height: 1.5;
+    }
+    ::selection { background: #c8e5d0; color: #123a2b; }
+    :focus-visible { outline: 3px solid var(--focus); outline-offset: 2px; }
+    .topbar { background: var(--forest); color: white; }
+    .topbar-inner {
+      max-width: 1480px;
+      min-height: 74px;
+      margin: 0 auto;
+      padding: 14px 32px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 24px;
+    }
+    .identity { display: flex; align-items: center; gap: 13px; }
+    .identity-mark {
+      width: 42px;
+      height: 42px;
+      display: grid;
+      place-items: center;
+      border: 1px solid #a8c7ac;
+      border-radius: 7px;
+      color: #f5f2d8;
+      font-size: 20px;
+      font-weight: 800;
+      letter-spacing: -.06em;
+    }
+    .identity-name { margin: 0; font-size: 16px; font-weight: 750; letter-spacing: .025em; }
+    .identity-subtitle { margin: 2px 0 0; color: #fff; font-size: 12px; }
+    .local-badge {
+      border: 1px solid #668a73;
+      border-radius: 999px;
+      padding: 7px 11px;
+      color: #eef5ee;
+      font-size: 11px;
+      font-weight: 650;
+      letter-spacing: .04em;
+      white-space: nowrap;
+    }
+    main { max-width: 1480px; margin: 0 auto; padding: 28px 32px 36px; }
+    .page-heading { margin-bottom: 22px; }
+    h1 { margin: 0; font-size: clamp(27px, 3vw, 36px); line-height: 1.15; letter-spacing: -.035em; }
+    .page-intro { max-width: 66ch; margin: 7px 0 0; color: var(--muted); }
+    .workbench {
+      display: grid;
+      grid-template-columns: minmax(320px, 390px) minmax(0, 1fr);
+      align-items: start;
+      gap: 22px;
+    }
+    .settings, .proof {
+      min-width: 0;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: var(--paper);
+      box-shadow: 0 5px 18px rgb(28 58 39 / 7%);
+    }
+    .settings { padding: 22px 24px; }
+    .form-section + .form-section { margin-top: 20px; padding-top: 19px; border-top: 1px solid var(--line); }
+    .section-heading { margin: 0 0 14px; font-size: 17px; line-height: 1.3; }
+    .field { margin: 0 0 15px; }
+    .field > label {
+      display: block;
+      margin-bottom: 6px;
+      color: #344a3e;
+      font-size: 13px;
+      font-weight: 700;
+    }
+    input[type="text"], select {
+      width: 100%;
+      min-height: 44px;
+      border: 1px solid #aabbb0;
+      border-radius: 6px;
+      background: #fff;
+      padding: 9px 11px;
+      color: var(--ink);
+      font: inherit;
+      font-size: 15px;
+    }
+    input[type="text"]:hover, select:hover { border-color: #6f907a; }
+    .street-prefix, .toggle-row {
+      min-height: 42px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      color: #344a3e;
+      font-size: 14px;
+      font-weight: 650;
+      cursor: pointer;
+    }
+    .street-prefix { margin: -8px 0 10px; }
+    input[type="checkbox"] { width: 19px; height: 19px; margin: 0; accent-color: var(--leaf); }
+    .help { margin: 6px 0 0; color: var(--muted); font-size: 12px; line-height: 1.45; }
+    .custom-locality { margin-top: 12px; }
+    [hidden] { display: none !important; }
+    .palette-warning {
+      margin: 0 0 14px;
+      border: 1px solid #9b6a13;
+      border-radius: 6px;
+      padding: 11px 12px;
+      background: #fff4d6;
+      color: #50370d;
+      font-size: 13px;
+      font-weight: 650;
+      line-height: 1.5;
+    }
+    .color-pair { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 12px; }
+    .color-control { display: flex; align-items: center; gap: 9px; min-width: 0; color: var(--muted); font-size: 12px; }
+    input[type="color"] {
+      width: 42px;
+      height: 36px;
+      flex: 0 0 auto;
+      padding: 3px;
+      border: 1px solid #aabbb0;
+      border-radius: 6px;
+      background: white;
+      cursor: pointer;
+    }
+    .swatch-strip {
+      display: flex;
+      gap: 7px;
+      margin-top: 13px;
+      border: 1px solid #dce3dc;
+      border-radius: 6px;
+      padding: 7px;
+      background: #f7f9f5;
+    }
+    .swatch { height: 15px; flex: 1; border: 1px solid rgb(18 34 25 / 15%); border-radius: 3px; }
+    .swatch:first-child { background: var(--swatch-ink); }
+    .swatch:last-child { background: var(--swatch-paper); }
+    .proof { overflow: hidden; }
+    .proof-head {
+      min-height: 72px;
+      padding: 16px 21px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      border-bottom: 1px solid var(--line);
+    }
+    .proof-head h2 { margin: 0; font-size: 17px; letter-spacing: -.015em; }
+    .proof-head p { margin: 3px 0 0; color: var(--muted); font-size: 12px; }
+    .dimension {
+      flex: 0 0 auto;
+      border: 1px solid #c4d4c8;
+      border-radius: 5px;
+      padding: 6px 9px;
+      background: #f2f6f1;
+      color: var(--forest);
+      font-size: 12px;
+      font-weight: 750;
+      font-variant-numeric: tabular-nums;
+    }
+    .proof-stage {
+      min-height: 500px;
+      padding: clamp(22px, 5vw, 54px);
+      display: grid;
+      place-items: center;
+      background-color: #edf2ec;
+      background-image: radial-gradient(#cbd7cc .75px, transparent .75px);
+      background-size: 18px 18px;
+    }
+    .proof-mat {
+      width: min(100%, 760px);
+      aspect-ratio: 40 / 35;
+      display: grid;
+      place-items: center;
+      padding: 4%;
+      border: 1px solid #c5d1c6;
+      background: #f9fbf7;
+      box-shadow: 0 12px 28px rgb(29 57 41 / 12%);
+    }
+    .proof-image { display: block; width: 100%; height: 100%; object-fit: contain; }
+    .proof-footer {
+      padding: 15px 21px 18px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      border-top: 1px solid var(--line);
+    }
+    .proof-status { min-height: 20px; color: var(--muted); font-size: 13px; line-height: 1.45; }
+    .proof-status[data-kind="error"] { color: var(--error); font-weight: 650; }
+    .proof-status[data-kind="success"] { color: var(--success); font-weight: 650; }
+    .save-button {
+      min-height: 46px;
+      flex: 0 0 auto;
+      border: 1px solid var(--leaf-dark);
+      border-radius: 6px;
+      padding: 10px 16px;
+      background: var(--leaf);
+      color: white;
+      font: inherit;
+      font-size: 14px;
+      font-weight: 750;
+      cursor: pointer;
+    }
+    .save-button:hover:not(:disabled) { background: var(--leaf-dark); }
+    .save-button:disabled { cursor: not-allowed; opacity: .56; }
+    .downloads { display: flex; flex-wrap: wrap; gap: 12px; padding: 0 21px 18px; color: var(--success); font-size: 13px; }
+    .downloads a { color: var(--leaf-dark); font-weight: 700; text-underline-offset: 3px; }
+    .page-note { margin: 16px 0 0; color: #52685b; font-size: 12px; line-height: 1.5; }
+    @media (max-width: 880px) {
+      main { padding: 24px; }
+      .workbench { grid-template-columns: minmax(270px, 340px) minmax(0, 1fr); gap: 14px; }
+      .settings { padding: 18px; }
+      .proof-stage { min-height: 390px; padding: 24px; }
+    }
+    @media (max-width: 700px) {
+      .topbar-inner { min-height: 72px; padding: 13px 18px; }
+      .identity-mark { width: 36px; height: 36px; }
+      .local-badge { max-width: 150px; white-space: normal; text-align: center; }
+      main { padding: 22px 16px 30px; }
+      .page-heading { margin-bottom: 17px; }
+      .workbench { grid-template-columns: minmax(0, 1fr); }
+      .settings { padding: 19px; }
+      .proof { grid-row: 2; }
+      .proof-stage { min-height: 300px; padding: 20px; }
+      .proof-footer { align-items: stretch; flex-direction: column; }
+      .save-button { width: 100%; }
+    }
+    @media (max-width: 390px) {
+      .topbar-inner { padding-inline: 12px; }
+      .identity { gap: 9px; }
+      .local-badge { max-width: 115px; padding: 6px 8px; font-size: 11px; }
+      main { padding-inline: 12px; }
+      .proof-head { padding-inline: 14px; }
+      .proof-stage { min-height: 250px; padding: 14px; }
+      .color-pair { gap: 7px; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { scroll-behavior: auto !important; transition-duration: .01ms !important; }
+    }
+  </style>
+  <script src="./app.js" defer></script>
+</head>
+<body>
+  <header class="topbar">
+    <div class="topbar-inner">
+      <div class="identity">
+        <div class="identity-mark" aria-hidden="true">W</div>
+        <div>
+          <p class="identity-name">OSIEDLE WILGA</p>
+          <p class="identity-subtitle">Tabliczki adresowe</p>
+        </div>
+      </div>
+      <div class="local-badge">PLIKI ZOSTAJĄ NA TYM KOMPUTERZE</div>
+    </div>
+  </header>
+  <main>
+    <div class="page-heading">
+      <h1>Skonfiguruj tabliczkę</h1>
+      <p class="page-intro">Wybierz adres i wygląd, sprawdź podgląd, a potem pobierz gotowe pliki do druku.</p>
+    </div>
+    <div class="workbench">
+      <form class="settings" id="sign-form">
+        <section class="form-section" aria-labelledby="address-heading">
+          <h2 class="section-heading" id="address-heading">Adres</h2>
+          <div class="field">
+            <label for="street">Ulica</label>
+            <input id="street" name="ulica" type="text" maxlength="80" required autocomplete="address-line1" placeholder="np. Słoneczna">
+          </div>
+          <label class="street-prefix" for="prefix">
+            <input id="prefix" name="prefiks" type="checkbox" checked>
+            <span>Dodaj prefiks „ULICA”</span>
+          </label>
+          <div class="field">
+            <label for="letter-case">Zapis nazwy ulicy</label>
+            <select id="letter-case" name="wielkosc_liter">
+              <option value="wielkie">WIELKIE LITERY</option>
+              <option value="male">małe litery</option>
+              <option value="wpisane">Tak jak wpisano</option>
+            </select>
+          </div>
+          <div class="field">
+            <label for="number">Numer domu</label>
+            <input id="number" name="numer" type="text" maxlength="20" required autocomplete="address-line2" placeholder="np. 12A">
+          </div>
+          <div class="field">
+            <label for="locality">Miejscowość</label>
+            <select id="locality" name="miejscowosc"></select>
+            <div class="custom-locality" id="custom-locality-field" hidden>
+              <label for="custom-locality">Wpisz nazwę miejscowości</label>
+              <input id="custom-locality" name="inna_miejscowosc" type="text" maxlength="64" placeholder="np. Celejów">
+            </div>
+            <p class="help">Garwolin domyślnie wybiera herb Garwolina; pozostałe miejscowości — herb Wilgi. Herb można zmienić ręcznie.</p>
+          </div>
+        </section>
+        <section class="form-section" aria-labelledby="format-heading">
+          <h2 class="section-heading" id="format-heading">Format i herb</h2>
+          <div class="field">
+            <label for="size">Rozmiar tabliczki</label>
+            <select id="size" name="rozmiar">
+              <option value="40x35">40 × 35 cm</option>
+              <option value="20x17.5">20 × 17,5 cm — połowa</option>
+            </select>
+          </div>
+          <div class="field">
+            <label for="crest">Herb</label>
+            <select id="crest" name="herb">
+              <option value="wilga">Wilga</option>
+              <option value="garwolin">Garwolin</option>
+            </select>
+            <p class="help">Dobór herbu jest automatyczny. Możesz zmienić go ręcznie.</p>
+          </div>
+        </section>
+        <section class="form-section" aria-labelledby="palette-heading">
+          <h2 class="section-heading" id="palette-heading">Paleta barw</h2>
+          <div class="field">
+            <label for="palette">Wersja kolorystyczna</label>
+            <select id="palette" name="paleta">
+              <option value="wilga">Zieleń Wilgi</option>
+              <option value="negatyw">Biały na zieleni</option>
+              <option value="granat">Granat i kość słoniowa</option>
+              <option value="bordo">Bordo i jasny krem</option>
+              <option value="grafit">Grafit i żółć</option>
+              <option value="wlasna">Własne kolory</option>
+            </select>
+          </div>
+          <p class="palette-warning" id="palette-warning" role="alert" hidden>
+            Uwaga: dla Osiedla Wilga obowiązuje narzucona przez wójta paleta „Zieleń Wilgi”.
+            Wybrana kolorystyka jest inna i nie spełnia tego wymogu.
+          </p>
+          <div class="color-pair">
+            <label class="color-control" for="text-color">
+              <input id="text-color" name="kolor_tekstu" type="color" value="#13864e">
+              <span>Litery i ramka</span>
+            </label>
+            <label class="color-control" for="background-color">
+              <input id="background-color" name="kolor_tla" type="color" value="#ffffff">
+              <span>Tło tabliczki</span>
+            </label>
+          </div>
+          <div class="swatch-strip" id="swatches" aria-label="Próbka wybranych kolorów">
+            <span class="swatch" aria-hidden="true"></span>
+            <span class="swatch" aria-hidden="true"></span>
+          </div>
+          <p class="help">Herb zachowuje swoje oryginalne barwy.</p>
+        </section>
+      </form>
+      <section class="proof" aria-labelledby="proof-heading">
+        <div class="proof-head">
+          <div>
+            <h2 id="proof-heading">Przykładowy wzór</h2>
+            <p id="proof-subtitle">Wpisz adres, aby zobaczyć swój znak.</p>
+          </div>
+          <div class="dimension" id="dimension">40 × 35 cm</div>
+        </div>
+        <div class="proof-stage">
+          <div class="proof-mat">
+            <img class="proof-image" id="preview" src="./assets/sample.svg" alt="Przykładowa tabliczka adresowa">
+            <p id="placeholder" hidden>Uzupełnij adres, aby zobaczyć podgląd.</p>
+          </div>
+        </div>
+        <div class="proof-footer">
+          <div class="proof-status" id="status" role="status" aria-live="polite">Wczytuję zasoby…</div>
+          <button class="save-button" id="save-button" type="submit" form="sign-form" disabled>Przygotuj pliki</button>
+        </div>
+        <div class="downloads" id="downloads" hidden>
+          <span>Pliki są gotowe:</span>
+          <a id="download-svg">Pobierz SVG</a>
+          <a id="download-png">Pobierz PNG · 300 DPI</a>
+        </div>
+      </section>
+    </div>
+    <p class="page-note">Pliki są przygotowywane w tej przeglądarce. PNG ma rozdzielczość 300 DPI; tekst w SVG jest zamieniony na krzywe.</p>
+  </main>
+</body>
+</html>
