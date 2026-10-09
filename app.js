@@ -124,6 +124,32 @@ function configFromForm() {
   };
 }
 
+function exampleConfig() {
+  return {
+    ulica: "Słoneczna",
+    wielkosc_liter: "wielkie",
+    numer: "12A",
+    miejscowosc: "Osiedle Wilga",
+    rozmiar: "40x35",
+    herb: "wilga",
+    prefiks: true,
+    paleta: "wilga",
+    kolor_tekstu: PALETTES.wilga.tekst,
+    kolor_tla: PALETTES.wilga.tlo
+  };
+}
+
+function showPreview(svg, alt, dimension) {
+  const nextUrl = URL.createObjectURL(new Blob([svg], {type: "image/svg+xml;charset=utf-8"}));
+  if (previewUrl) URL.revokeObjectURL(previewUrl);
+  previewUrl = nextUrl;
+  preview.src = nextUrl;
+  preview.alt = alt;
+  preview.hidden = false;
+  document.querySelector("#placeholder").hidden = true;
+  document.querySelector("#dimension").textContent = dimension;
+}
+
 function svgNode(name, attributes = {}) {
   const element = document.createElementNS("http://www.w3.org/2000/svg", name);
   for (const [key, value] of Object.entries(attributes)) element.setAttribute(key, value);
@@ -227,26 +253,27 @@ function schedulePreview() {
 async function refreshPreview() {
   if (!form.checkValidity()) {
     saveButton.disabled = true;
-    preview.hidden = true;
-    document.querySelector("#placeholder").hidden = false;
-    proofHeading.textContent = "Uzupełnij adres";
-    proofSubtitle.textContent = "Wpisz ulicę i numer domu, aby zobaczyć swój znak.";
-    setStatus("Uzupełnij wymagane pola, aby zobaczyć podgląd.");
+    downloads.hidden = true;
+    showPreview(
+      buildSvg(exampleConfig()),
+      "Przykładowa tabliczka: Słoneczna 12A, Osiedle Wilga",
+      SIZES["40x35"].label
+    );
+    proofHeading.textContent = "Przykładowy wzór";
+    proofSubtitle.textContent = "Przykładowy adres: Słoneczna 12A, Osiedle Wilga.";
+    setStatus("Wpisz ulicę i numer domu, aby przygotować własny podgląd.");
     return;
   }
   saveButton.disabled = true;
   downloads.hidden = true;
   setStatus("Aktualizuję podgląd…");
   try {
-    const svg = buildSvg(configFromForm());
-    const nextUrl = URL.createObjectURL(new Blob([svg], {type: "image/svg+xml;charset=utf-8"}));
-    if (previewUrl) URL.revokeObjectURL(previewUrl);
-    previewUrl = nextUrl;
-    preview.src = nextUrl;
-    preview.hidden = false;
-    document.querySelector("#placeholder").hidden = true;
-    preview.alt = `Podgląd tabliczki dla adresu ${form.elements.ulica.value} ${form.elements.numer.value}`;
-    document.querySelector("#dimension").textContent = SIZES[size.value].label;
+    const config = configFromForm();
+    showPreview(
+      buildSvg(config),
+      `Podgląd tabliczki dla adresu ${form.elements.ulica.value} ${form.elements.numer.value}`,
+      SIZES[size.value].label
+    );
     proofHeading.textContent = "Podgląd do druku";
     proofSubtitle.textContent = "Proporcje i układ odpowiadają gotowej tabliczce.";
     saveButton.disabled = false;

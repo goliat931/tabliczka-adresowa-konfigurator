@@ -5,6 +5,7 @@ Statyczna wersja konfiguratora dla GitHub Pages. Nie wymaga serwera ani wysyłan
 ## Funkcje
 
 - 40 × 35 cm i 20 × 17,5 cm, z eksportem PNG w 300 DPI.
+- Przykładowa tabliczka widoczna od razu; po wpisaniu ulicy i numeru pojawia się podgląd własnego adresu.
 - Nazwa ulicy wielkimi literami, małymi literami lub w zapisie wpisanym; litery numeru domu są zawsze wielkie.
 - Większy, wyśrodkowany układ nazwy ulicy po wyłączeniu prefiksu „ULICA”.
 - Pełna lista 30 miejscowości gminy Wilga, Garwolin i własna nazwa.
