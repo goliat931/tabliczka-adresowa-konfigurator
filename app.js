@@ -172,7 +172,12 @@ function appendText(svg, text, weight, fontSize, baseline, maxWidth, color, lett
   let sizePx = fontSize;
   const measuredWidth = glyphWidth(text, font, unitsPerEm, sizePx, letterSpacing);
   if (measuredWidth > maxWidth) {
-    const totalAdvance = [...text].reduce((sum, character) => sum + font.characters[character].advance, 0);
+    const totalAdvance = [...text].reduce((sum, character) => {
+      const glyphName = font.characters[character];
+      const glyph = glyphName ? font.glyphs[glyphName] : null;
+      if (!glyph) throw new Error(`Krój pisma nie zawiera znaku „${character}”.`);
+      return sum + glyph.advance;
+    }, 0);
     sizePx = (maxWidth - letterSpacing * Math.max([...text].length - 1, 0)) * unitsPerEm / totalAdvance;
   }
   const scale = sizePx / unitsPerEm;
