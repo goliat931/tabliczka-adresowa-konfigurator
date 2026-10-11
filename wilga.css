@@ -56,7 +56,7 @@ a { color: var(--link); text-underline-offset: 3px; }
   color: var(--text); text-decoration: none;
   font-weight: 700; font-size: 15px; letter-spacing: .01em; white-space: nowrap;
 }
-.wilga-brand img { width: 24px; height: 27px; }
+.wilga-znak { width: 44px; height: 27px; color: var(--link); flex: none; }
 .wilga-nav { display: flex; height: 100%; gap: 4px; overflow-x: auto; scrollbar-width: none; }
 .wilga-nav a {
   display: flex; align-items: center; height: 100%;
