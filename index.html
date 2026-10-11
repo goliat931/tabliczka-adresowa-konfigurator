@@ -3,73 +3,40 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="theme-color" content="#174c38">
+  <meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)">
+  <meta name="theme-color" content="#1c1d1f" media="(prefers-color-scheme: dark)">
   <meta name="description" content="Skonfiguruj i pobierz gotową do druku tabliczkę adresową dla Wilgi, okolic lub Garwolina.">
-  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 40'%3E%3Crect width='40' height='40' rx='7' fill='%23174c38'/%3E%3Ctext x='50%25' y='72%25' text-anchor='middle' font-family='Arial,sans-serif' font-weight='700' font-size='28' fill='white'%3EW%3C/text%3E%3C/svg%3E">
+  <link rel="icon" href="./assets/herb.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="./wilga.css">
   <title>Konfigurator tabliczek — Osiedle Wilga</title>
   <style>
     :root {
-      color-scheme: light;
-      --forest: #174c38;
-      --leaf: #28764f;
-      --leaf-dark: #1e5d3e;
-      --ink: #20342a;
-      --muted: #52685b;
-      --paper: #fff;
-      --ground: #f2f5ef;
-      --line: #d7e0d6;
-      --error: #9f2d26;
-      --success: #236b42;
-      --focus: #a86112;
-      --radius: 9px;
+      --forest: var(--wilga);
+      --leaf: var(--wilga);
+      --leaf-dark: var(--wilga-hover);
+      --ink: var(--text);
+      --paper: var(--surface);
+      --ground: var(--bg);
+      --line: var(--border);
+      --error: #b3261e;
+      --success: var(--link);
+      --radius: 10px;
+      --warn-bg: #fff4d6; --warn-border: #9b6a13; --warn-text: #50370d;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root { --error: #ff8a80; --warn-bg: #3a2e12; --warn-border: #a37a2c; --warn-text: #f3dca6; }
     }
     * { box-sizing: border-box; }
     body {
       margin: 0;
       background: var(--ground);
       color: var(--ink);
-      font-family: Inter, "Segoe UI", Arial, sans-serif;
+      font-family: var(--font);
       font-size: 15px;
       line-height: 1.5;
     }
-    ::selection { background: #c8e5d0; color: #123a2b; }
-    :focus-visible { outline: 3px solid var(--focus); outline-offset: 2px; }
-    .topbar { background: var(--forest); color: white; }
-    .topbar-inner {
-      max-width: 1480px;
-      min-height: 74px;
-      margin: 0 auto;
-      padding: 14px 32px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 24px;
-    }
-    .identity { display: flex; align-items: center; gap: 13px; }
-    .identity-mark {
-      width: 42px;
-      height: 42px;
-      display: grid;
-      place-items: center;
-      border: 1px solid #a8c7ac;
-      border-radius: 7px;
-      color: #f5f2d8;
-      font-size: 20px;
-      font-weight: 800;
-      letter-spacing: -.06em;
-    }
-    .identity-name { margin: 0; font-size: 16px; font-weight: 750; letter-spacing: .025em; }
-    .identity-subtitle { margin: 2px 0 0; color: #fff; font-size: 12px; }
-    .local-badge {
-      border: 1px solid #668a73;
-      border-radius: 999px;
-      padding: 7px 11px;
-      color: #eef5ee;
-      font-size: 11px;
-      font-weight: 650;
-      letter-spacing: .04em;
-      white-space: nowrap;
-    }
+    .local-note { display: flex; align-items: center; gap: 7px; margin: 10px 0 0; color: var(--muted); font-size: 13px; }
+    .local-note svg { flex: none; color: var(--link); }
     main { max-width: 1480px; margin: 0 auto; padding: 28px 32px 36px; }
     .page-heading { margin-bottom: 22px; }
     h1 { margin: 0; font-size: clamp(27px, 3vw, 36px); line-height: 1.15; letter-spacing: -.035em; }
@@ -85,7 +52,6 @@
       border: 1px solid var(--line);
       border-radius: var(--radius);
       background: var(--paper);
-      box-shadow: 0 5px 18px rgb(28 58 39 / 7%);
     }
     .settings { padding: 22px 24px; }
     .form-section + .form-section { margin-top: 20px; padding-top: 19px; border-top: 1px solid var(--line); }
@@ -94,28 +60,28 @@
     .field > label {
       display: block;
       margin-bottom: 6px;
-      color: #344a3e;
+      color: var(--text);
       font-size: 13px;
       font-weight: 700;
     }
     input[type="text"], select {
       width: 100%;
       min-height: 44px;
-      border: 1px solid #aabbb0;
+      border: 1px solid var(--border-strong);
       border-radius: 6px;
-      background: #fff;
+      background: var(--bg);
       padding: 9px 11px;
       color: var(--ink);
       font: inherit;
       font-size: 15px;
     }
-    input[type="text"]:hover, select:hover { border-color: #6f907a; }
+    input[type="text"]:hover, select:hover { border-color: var(--muted); }
     .street-prefix, .toggle-row {
       min-height: 42px;
       display: flex;
       align-items: center;
       gap: 10px;
-      color: #344a3e;
+      color: var(--text);
       font-size: 14px;
       font-weight: 650;
       cursor: pointer;
@@ -127,11 +93,11 @@
     [hidden] { display: none !important; }
     .palette-warning {
       margin: 0 0 14px;
-      border: 1px solid #9b6a13;
+      border: 1px solid var(--warn-border);
       border-radius: 6px;
       padding: 11px 12px;
-      background: #fff4d6;
-      color: #50370d;
+      background: var(--warn-bg);
+      color: var(--warn-text);
       font-size: 13px;
       font-weight: 650;
       line-height: 1.5;
@@ -143,19 +109,19 @@
       height: 36px;
       flex: 0 0 auto;
       padding: 3px;
-      border: 1px solid #aabbb0;
+      border: 1px solid var(--border-strong);
       border-radius: 6px;
-      background: white;
+      background: var(--surface);
       cursor: pointer;
     }
     .swatch-strip {
       display: flex;
       gap: 7px;
       margin-top: 13px;
-      border: 1px solid #dce3dc;
+      border: 1px solid var(--border);
       border-radius: 6px;
       padding: 7px;
-      background: #f7f9f5;
+      background: var(--surface-2);
     }
     .swatch { height: 15px; flex: 1; border: 1px solid rgb(18 34 25 / 15%); border-radius: 3px; }
     .swatch:first-child { background: var(--swatch-ink); }
@@ -174,11 +140,11 @@
     .proof-head p { margin: 3px 0 0; color: var(--muted); font-size: 12px; }
     .dimension {
       flex: 0 0 auto;
-      border: 1px solid #c4d4c8;
+      border: 1px solid var(--border);
       border-radius: 5px;
       padding: 6px 9px;
-      background: #f2f6f1;
-      color: var(--forest);
+      background: var(--surface-2);
+      color: var(--link);
       font-size: 12px;
       font-weight: 750;
       font-variant-numeric: tabular-nums;
@@ -188,8 +154,8 @@
       padding: clamp(22px, 5vw, 54px);
       display: grid;
       place-items: center;
-      background-color: #edf2ec;
-      background-image: radial-gradient(#cbd7cc .75px, transparent .75px);
+      background-color: var(--surface-2);
+      background-image: radial-gradient(var(--border-strong) .75px, transparent .75px);
       background-size: 18px 18px;
     }
     .proof-mat {
@@ -198,9 +164,9 @@
       display: grid;
       place-items: center;
       padding: 4%;
-      border: 1px solid #c5d1c6;
-      background: #f9fbf7;
-      box-shadow: 0 12px 28px rgb(29 57 41 / 12%);
+      border: 1px solid var(--edge);
+      background: var(--surface);
+      box-shadow: var(--shadow);
     }
     .proof-image { display: block; width: 100%; height: 100%; object-fit: contain; }
     .proof-footer {
@@ -230,10 +196,10 @@
     .save-button:hover:not(:disabled) { background: var(--leaf-dark); }
     .save-button:disabled { cursor: not-allowed; opacity: .56; }
     .downloads { display: flex; flex-wrap: wrap; gap: 12px; padding: 0 21px 18px; color: var(--success); font-size: 13px; }
-    .downloads a { color: var(--leaf-dark); font-weight: 700; text-underline-offset: 3px; }
-    .page-note { margin: 16px 0 0; color: #52685b; font-size: 12px; line-height: 1.5; }
+    .downloads a { color: var(--link); font-weight: 700; text-underline-offset: 3px; }
+    .page-note { margin: 16px 0 0; color: var(--muted); font-size: 12px; line-height: 1.5; }
     .site-footer { max-width: 1480px; margin: 0 auto; padding: 0 32px 24px; color: var(--muted); font-size: 13px; }
-    .site-footer a { color: var(--leaf-dark); font-weight: 700; text-underline-offset: 3px; }
+    .site-footer a { color: var(--link); font-weight: 700; text-underline-offset: 3px; }
     @media (max-width: 880px) {
       main { padding: 24px; }
       .workbench { grid-template-columns: minmax(270px, 340px) minmax(0, 1fr); gap: 14px; }
@@ -241,9 +207,6 @@
       .proof-stage { min-height: 390px; padding: 24px; }
     }
     @media (max-width: 700px) {
-      .topbar-inner { min-height: 72px; padding: 13px 18px; }
-      .identity-mark { width: 36px; height: 36px; }
-      .local-badge { max-width: 150px; white-space: normal; text-align: center; }
       main { padding: 22px 16px 30px; }
       .page-heading { margin-bottom: 17px; }
       .workbench { grid-template-columns: minmax(0, 1fr); }
@@ -255,9 +218,6 @@
       .site-footer { padding: 0 16px 24px; }
     }
     @media (max-width: 390px) {
-      .topbar-inner { padding-inline: 12px; }
-      .identity { gap: 9px; }
-      .local-badge { max-width: 115px; padding: 6px 8px; font-size: 11px; }
       main { padding-inline: 12px; }
       .proof-head { padding-inline: 14px; }
       .proof-stage { min-height: 250px; padding: 14px; }
@@ -270,22 +230,18 @@
   <script src="./app.js" defer></script>
 </head>
 <body>
-  <header class="topbar">
-    <div class="topbar-inner">
-      <div class="identity">
-        <div class="identity-mark" aria-hidden="true">W</div>
-        <div>
-          <p class="identity-name">OSIEDLE WILGA</p>
-          <p class="identity-subtitle">Tabliczki adresowe</p>
-        </div>
-      </div>
-      <div class="local-badge">PLIKI ZOSTAJĄ NA TYM KOMPUTERZE</div>
-    </div>
+  <header class="wilga-bar">
+    <a class="wilga-brand" href="https://wilga.goliat.dev/"><img src="./assets/herb.svg" alt=""><span>Osiedle Wilga</span></a>
+    <nav class="wilga-nav" aria-label="Projekty Osiedla Wilga">
+      <a href="https://mapa-wilga.goliat.dev/">Mapa</a>
+      <a href="https://tabliczki-adresowe.goliat.dev/" aria-current="page">Tabliczki adresowe</a>
+    </nav>
   </header>
   <main>
     <div class="page-heading">
       <h1>Skonfiguruj tabliczkę</h1>
       <p class="page-intro">Wybierz adres i wygląd, sprawdź podgląd, a potem pobierz gotowe pliki do druku.</p>
+      <p class="local-note"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg>Pliki zostają na tym komputerze — nic nie jest wysyłane.</p>
     </div>
     <div class="workbench">
       <form class="settings" id="sign-form">

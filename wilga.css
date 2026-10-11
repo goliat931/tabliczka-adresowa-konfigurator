@@ -1,0 +1,88 @@
+/* Osiedle Wilga — wspólny motyw trzech stron (wilga / mapa-wilga / tabliczki-adresowe).
+   Ten sam plik leży w każdym repozytorium; zmieniasz go w jednym, kopiujesz do pozostałych. */
+:root {
+  color-scheme: light;
+  --wilga: #13864e;          /* Zieleń Wilgi, rgb(19,134,78) */
+  --wilga-hover: #0e6b3e;
+  --on-wilga: #ffffff;
+  --link: #10703f;
+  --bg: #ffffff;
+  --surface: #ffffff;
+  --surface-2: #f3f4f5;
+  --text: #1b1d1f;
+  --muted: #5c6166;
+  --border: #dde0e3;
+  --border-strong: #b9bec4;
+  --edge: transparent;      /* obramowanie elementów z cieniem: w jasnym wystarcza cień */
+  --focus: #13864e;
+  --shadow: 0 1px 2px rgb(0 0 0 / 8%), 0 4px 14px rgb(0 0 0 / 7%);
+  --font: system-ui, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --bar-h: 52px;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    color-scheme: dark;
+    --wilga: #13864e;
+    --link: #5fd39a;
+    --bg: #121314;
+    --surface: #1c1d1f;
+    --surface-2: #26282b;
+    --text: #e8eaec;
+    --muted: #a3a8ae;
+    --border: #34373b;
+    --border-strong: #4a4e53;
+    --edge: #34373b;
+    --focus: #5fd39a;
+    --shadow: 0 1px 2px rgb(0 0 0 / 40%), 0 6px 18px rgb(0 0 0 / 35%);
+  }
+}
+
+::selection { background: color-mix(in srgb, var(--wilga) 28%, transparent); }
+:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
+a { color: var(--link); text-underline-offset: 3px; }
+
+/* Wspólny pasek nawigacji */
+.wilga-bar {
+  position: sticky; top: 0; z-index: 2000;
+  height: var(--bar-h);
+  display: flex; align-items: center; gap: 22px;
+  padding: 0 20px;
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  font-family: var(--font);
+}
+.wilga-brand {
+  display: flex; align-items: center; gap: 9px;
+  color: var(--text); text-decoration: none;
+  font-weight: 700; font-size: 15px; letter-spacing: .01em; white-space: nowrap;
+}
+.wilga-brand img { width: 24px; height: 27px; }
+.wilga-nav { display: flex; height: 100%; gap: 4px; overflow-x: auto; scrollbar-width: none; }
+.wilga-nav a {
+  display: flex; align-items: center; height: 100%;
+  padding: 0 12px;
+  color: var(--muted); text-decoration: none;
+  font-size: 14px; font-weight: 600; white-space: nowrap;
+  border-bottom: 2px solid transparent; margin-bottom: -1px;
+}
+.wilga-nav a:hover { color: var(--text); }
+.wilga-nav a[aria-current="page"] { color: var(--link); border-bottom-color: var(--wilga); }
+@media (max-width: 520px) {
+  .wilga-bar { gap: 10px; padding: 0 10px; }
+  .wilga-brand span { display: none; }
+  .wilga-nav a { padding: 0 9px; font-size: 13.5px; }
+}
+
+/* Przyciski */
+.btn-primary {
+  border: 1px solid var(--wilga); border-radius: 7px;
+  background: var(--wilga); color: var(--on-wilga);
+  font: inherit; font-weight: 650; cursor: pointer;
+}
+.btn-primary:hover:not(:disabled) { background: var(--wilga-hover); border-color: var(--wilga-hover); }
+.btn-secondary {
+  border: 1px solid var(--border-strong); border-radius: 7px;
+  background: var(--surface); color: var(--text);
+  font: inherit; cursor: pointer;
+}
+.btn-secondary:hover { background: var(--surface-2); }
