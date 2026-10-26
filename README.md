@@ -5,7 +5,8 @@ Statyczna wersja konfiguratora dla GitHub Pages. Nie wymaga serwera ani wysyłan
 ## Funkcje
 
 - 40 × 35 cm i 20 × 17,5 cm, z eksportem PNG w 300 DPI.
-- Przykładowa tabliczka widoczna od razu; po wpisaniu ulicy i numeru pojawia się podgląd własnego adresu.
+- Przykładowa tabliczka widoczna od razu; każde wpisane pole od razu zastępuje przykład w podglądzie (puste pola pokazują przykład), a pliki można przygotować po uzupełnieniu wszystkich.
+- Drugi rodzaj: tablica z nazwą ulicy na skrzyżowanie (100 × 45 cm albo 80 × 36 cm), ze skrótem „UL.”, miejscowością i herbem w pasku oraz opcjonalnymi numerami domów ze strzałką (np. „11 → 1”).
 - Nazwa ulicy wielkimi literami, małymi literami lub w zapisie wpisanym; litery numeru domu są zawsze wielkie.
 - Większy, wyśrodkowany układ nazwy ulicy po wyłączeniu prefiksu „ULICA”.
 - Pełna lista 30 miejscowości gminy Wilga, Garwolin i własna nazwa.

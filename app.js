@@ -17,10 +17,17 @@ const LOCALITIES = [
   "Wólka Gruszczyńska", "Zakrzew", "Zarzecze", "Garwolin"
 ];
 const SIZES = {
-  "40x35": {label: "40 × 35 cm", mm: [400, 350]},
-  "20x17.5": {label: "20 × 17,5 cm", mm: [200, 175]}
+  "40x35": {label: "40 × 35 cm", mm: [400, 350], rodzaj: "adres"},
+  "20x17.5": {label: "20 × 17,5 cm", opis: "20 × 17,5 cm (połowa)", mm: [200, 175], rodzaj: "adres"},
+  "100x45": {label: "100 × 45 cm", mm: [1000, 450], rodzaj: "ulica"},
+  "80x36": {label: "80 × 36 cm", mm: [800, 360], rodzaj: "ulica"}
 };
 const CANVAS = {width: 1512, height: 1323};
+const STREET_CANVAS = {width: 2000, height: 900};
+const EXAMPLES = {
+  adres: {ulica: "Słoneczna", numer: "12A", opis: "Słoneczna 12A"},
+  ulica: {ulica: "Szpaka", numer_lewy: "11", numer_prawy: "1", opis: "Szpaka, numery 11 → 1"}
+};
 const form = document.querySelector("#sign-form");
 const locality = document.querySelector("#locality");
 const customLocality = document.querySelector("#custom-locality");
@@ -31,6 +38,8 @@ const textColor = document.querySelector("#text-color");
 const backgroundColor = document.querySelector("#background-color");
 const prefix = document.querySelector("#prefix");
 const size = document.querySelector("#size");
+const signType = document.querySelector("#type");
+const numbers = document.querySelector("#numbers");
 const preview = document.querySelector("#preview");
 const status = document.querySelector("#status");
 const saveButton = document.querySelector("#save-button");
@@ -109,33 +118,45 @@ function markCustomPalette() {
   schedulePreview();
 }
 
+function setSizeOptions() {
+  const previous = size.value;
+  size.replaceChildren(...Object.entries(SIZES).filter(([, s]) => s.rodzaj === signType.value)
+    .map(([value, s]) => new Option(s.opis || s.label, value)));
+  if (SIZES[previous]?.rodzaj === signType.value) size.value = previous;
+}
+
+function updateTypeControls() {
+  const street = signType.value === "ulica";
+  document.querySelector("#number-field").hidden = street;
+  form.elements.numer.required = !street;
+  document.querySelector("#street-numbers").hidden = !street;
+  document.querySelector("#number-range").hidden = !numbers.checked;
+  for (const name of ["numer_lewy", "numer_prawy"]) form.elements[name].required = street && numbers.checked;
+  document.querySelector("#prefix-label").textContent = street ? "Dodaj skrót „UL.”" : "Dodaj prefiks „ULICA”";
+  form.elements.ulica.placeholder = `np. ${EXAMPLES[signType.value].ulica}`;
+  setSizeOptions();
+}
+
+// Puste pole pokazuje w podglądzie przykład, więc wpisywana nazwa ulicy jest widoczna od pierwszej litery.
 function configFromForm() {
+  const example = EXAMPLES[signType.value];
+  const value = name => form.elements[name].value.trim() || example[name] || "";
   return {
-    ulica: form.elements.ulica.value.trim(),
+    rodzaj: signType.value,
+    ulica: value("ulica"),
     wielkosc_liter: form.elements.wielkosc_liter.value,
-    numer: form.elements.numer.value.trim().toLocaleUpperCase("pl-PL"),
-    miejscowosc: localityValue(),
+    numer: value("numer").toLocaleUpperCase("pl-PL"),
+    numery: numbers.checked,
+    numer_lewy: value("numer_lewy").toLocaleUpperCase("pl-PL"),
+    numer_prawy: value("numer_prawy").toLocaleUpperCase("pl-PL"),
+    strzalka: form.elements.strzalka.value,
+    miejscowosc: localityValue() || "Osiedle Wilga",
     rozmiar: size.value,
     herb: crest.value,
     prefiks: prefix.checked,
     paleta: palette.value,
     kolor_tekstu: textColor.value.toUpperCase(),
     kolor_tla: backgroundColor.value.toUpperCase()
-  };
-}
-
-function exampleConfig() {
-  return {
-    ulica: "Słoneczna",
-    wielkosc_liter: "wielkie",
-    numer: "12A",
-    miejscowosc: "Osiedle Wilga",
-    rozmiar: "40x35",
-    herb: "wilga",
-    prefiks: true,
-    paleta: "wilga",
-    kolor_tekstu: PALETTES.wilga.tekst,
-    kolor_tla: PALETTES.wilga.tlo
   };
 }
 
@@ -148,6 +169,9 @@ function showPreview(svg, alt, dimension) {
   preview.hidden = false;
   document.querySelector("#placeholder").hidden = true;
   document.querySelector("#dimension").textContent = dimension;
+  const [w, h] = SIZES[size.value].mm;
+  const margin = 0.08 * Math.min(w, h);
+  document.querySelector(".proof-mat").style.aspectRatio = `${w + margin} / ${h + margin}`;
 }
 
 function svgNode(name, attributes = {}) {
@@ -166,51 +190,129 @@ function glyphWidth(text, glyphs, unitsPerEm, sizePx, letterSpacing) {
   return (advance / unitsPerEm) * sizePx + letterSpacing * Math.max([...text].length - 1, 0);
 }
 
-function appendText(svg, text, weight, fontSize, baseline, maxWidth, color, letterSpacing = 0) {
+function fitText(text, weight, fontSize, maxWidth, letterSpacing = 0) {
   const font = fontData.weights[String(weight)];
-  const unitsPerEm = font.unitsPerEm;
-  let sizePx = fontSize;
-  const measuredWidth = glyphWidth(text, font, unitsPerEm, sizePx, letterSpacing);
-  if (measuredWidth > maxWidth) {
-    const totalAdvance = [...text].reduce((sum, character) => {
-      const glyphName = font.characters[character];
-      const glyph = glyphName ? font.glyphs[glyphName] : null;
-      if (!glyph) throw new Error(`Krój pisma nie zawiera znaku „${character}”.`);
-      return sum + glyph.advance;
-    }, 0);
-    sizePx = (maxWidth - letterSpacing * Math.max([...text].length - 1, 0)) * unitsPerEm / totalAdvance;
-  }
-  const scale = sizePx / unitsPerEm;
-  let x = (CANVAS.width - glyphWidth(text, font, unitsPerEm, sizePx, letterSpacing)) / 2;
+  const width = glyphWidth(text, font, font.unitsPerEm, fontSize, letterSpacing);
+  if (width <= maxWidth) return {size: fontSize, width};
+  const spacing = letterSpacing * Math.max([...text].length - 1, 0);
+  return {size: (maxWidth - spacing) * fontSize / (width - spacing), width: maxWidth};
+}
+
+// Rysuje tekst krzywymi od lewej krawędzi x; zwraca szerokość.
+function drawText(svg, text, weight, sizePx, x, baseline, color, letterSpacing = 0) {
+  const font = fontData.weights[String(weight)];
+  glyphWidth(text, font, font.unitsPerEm, sizePx, letterSpacing);  // błąd, gdy krój nie ma znaku
+  const scale = sizePx / font.unitsPerEm;
+  const start = x;
   for (const character of text) {
-    const glyphName = font.characters[character];
-    const glyph = glyphName ? font.glyphs[glyphName] : null;
+    const glyph = font.glyphs[font.characters[character]];
     if (glyph.path) {
-      const path = svgNode("path", {
+      svg.append(svgNode("path", {
         d: glyph.path,
         fill: color,
         transform: `translate(${x.toFixed(2)} ${baseline}) scale(${scale} ${-scale})`
-      });
-      svg.append(path);
+      }));
     }
     x += glyph.advance * scale + letterSpacing;
   }
+  return x - letterSpacing - start;
+}
+
+function appendText(svg, text, weight, fontSize, baseline, maxWidth, color, letterSpacing = 0, center = CANVAS.width / 2) {
+  const fit = fitText(text, weight, fontSize, maxWidth, letterSpacing);
+  drawText(svg, text, weight, fit.size, center - fit.width / 2, baseline, color, letterSpacing);
 }
 
 function escapeFilename(value) {
-  const slug = value.normalize("NFKD").replace(/[\u0300-\u036f]/g, "")
+  const slug = value.replace(/ł/g, "l").replace(/Ł/g, "L").normalize("NFKD").replace(/[\u0300-\u036f]/g, "")
     .replace(/[^A-Za-z0-9]+/g, "-").replace(/^-+|-+$/g, "").toLowerCase();
   return slug || "tabliczka";
 }
 
-function buildSvg(config) {
+function svgRoot(config, canvas) {
   const [widthMm, heightMm] = SIZES[config.rozmiar].mm;
-  const svg = svgNode("svg", {
+  return svgNode("svg", {
     xmlns: "http://www.w3.org/2000/svg",
     width: `${widthMm}mm`,
     height: `${heightMm}mm`,
-    viewBox: `0 0 ${CANVAS.width} ${CANVAS.height}`
+    viewBox: `0 0 ${canvas.width} ${canvas.height}`
   });
+}
+
+function streetName(config) {
+  return config.wielkosc_liter === "wielkie"
+    ? config.ulica.toLocaleUpperCase("pl-PL")
+    : config.wielkosc_liter === "male"
+      ? config.ulica.toLocaleLowerCase("pl-PL")
+      : config.ulica;
+}
+
+function crestImage(config, x, y, width, height) {
+  return svgNode("image", {
+    x, y, width, height,
+    preserveAspectRatio: "xMidYMid meet",
+    href: crests[config.herb].dataUrl
+  });
+}
+
+function buildSvg(config) {
+  return config.rodzaj === "ulica" ? buildStreetSvg(config) : buildAddressSvg(config);
+}
+
+// Tablica z nazwą ulicy na skrzyżowanie: ramka, „UL.” i nazwa, a w pasku numery ze strzałką, miejscowość i herb.
+function buildStreetSvg(config) {
+  const {width: W, height: H} = STREET_CANVAS;
+  const svg = svgRoot(config, STREET_CANVAS);
+  const fg = config.kolor_tekstu;
+  const bg = config.kolor_tla;
+  const bandTop = 705;
+  svg.append(
+    svgNode("rect", {width: W, height: H, fill: bg}),
+    svgNode("rect", {x: 38, y: 38, width: W - 76, height: H - 76, fill: "none", stroke: fg, "stroke-width": 26}),
+    svgNode("rect", {x: 25, y: bandTop, width: W - 50, height: H - 25 - bandTop, fill: fg})
+  );
+
+  const street = streetName(config);
+  const upper = config.wielkosc_liter === "wielkie";
+  const nameSize = upper ? 470 : 420;
+  const middle = upper ? 423 : 406;  // środek wysokości wielkich liter; krótsza nazwa i tak ma tu linię pisma 578 / 545
+  const prefixSize = 150;
+  const gap = 34;
+  const font = fontData.weights["500"];
+  const nameWidth = glyphWidth(street, font, font.unitsPerEm, nameSize, 0);
+  const prefixWidth = config.prefiks ? glyphWidth("UL.", font, font.unitsPerEm, prefixSize, 0) + gap : 0;
+  const scale = Math.min(1, 1760 / (nameWidth + prefixWidth));
+  const baseline = middle + 0.33 * nameSize * scale;
+  let x = (W - (nameWidth + prefixWidth) * scale) / 2;
+  if (config.prefiks) x += drawText(svg, "UL.", 500, prefixSize * scale, x, baseline, fg) + gap * scale;
+  drawText(svg, street, 500, nameSize * scale, x, baseline, fg);
+
+  const numBaseline = 822;
+  if (config.numery) {
+    let nx = 70;
+    nx += drawText(svg, config.numer_lewy, 500, 92, nx, numBaseline, bg) + 22;
+    const length = 96;
+    const y = numBaseline - 33;
+    const left = config.strzalka === "lewo";
+    const tip = left ? nx : nx + length;
+    const tail = left ? nx + length : nx;
+    const head = left ? 30 : -30;
+    svg.append(svgNode("path", {
+      d: `M${tail} ${y - 6}H${tip + head}V${y - 20}L${tip} ${y}L${tip + head} ${y + 20}V${y + 6}H${tail}Z`,
+      fill: bg
+    }));
+    nx += length + 22;
+    drawText(svg, config.numer_prawy, 500, 92, nx, numBaseline, bg);
+  }
+  const hasCrest = config.herb !== "brak";
+  appendText(svg, config.miejscowosc.toLocaleUpperCase("pl-PL"), 500, 150, 842,
+    config.numery || hasCrest ? 1300 : 1800, bg, 24, W / 2);
+  if (hasCrest) svg.append(crestImage(config, 1838, 728, 92, 124));
+  return new XMLSerializer().serializeToString(svg);
+}
+
+function buildAddressSvg(config) {
+  const svg = svgRoot(config, CANVAS);
   const foreground = config.kolor_tekstu;
   const background = config.kolor_tla;
   svg.append(
@@ -219,11 +321,7 @@ function buildSvg(config) {
     svgNode("rect", {x: 21, y: 1208, width: 1470, height: 94, fill: foreground})
   );
 
-  const street = config.wielkosc_liter === "wielkie"
-    ? config.ulica.toLocaleUpperCase("pl-PL")
-    : config.wielkosc_liter === "male"
-      ? config.ulica.toLocaleLowerCase("pl-PL")
-      : config.ulica;
+  const street = streetName(config);
   if (config.prefiks) {
     appendText(svg, "ULICA", 400, 92, 170, 600, foreground, 3);
     if (config.wielkosc_liter === "wielkie") {
@@ -239,14 +337,7 @@ function buildSvg(config) {
   appendText(svg, config.numer, 700, 640, 1060, 1180, foreground);
   appendText(svg, config.miejscowosc.toLocaleUpperCase("pl-PL"), 500, 57, 1280, 1000, background, 10);
 
-  if (config.herb !== "brak") {
-    const crestData = crests[config.herb];
-    svg.append(svgNode("image", {
-      x: 1386, y: 1211, width: 66, height: 73,
-      preserveAspectRatio: "xMidYMid meet",
-      href: crestData.dataUrl
-    }));
-  }
+  if (config.herb !== "brak") svg.append(crestImage(config, 1386, 1211, 66, 73));
   return new XMLSerializer().serializeToString(svg);
 }
 
@@ -256,33 +347,27 @@ function schedulePreview() {
 }
 
 async function refreshPreview() {
-  if (!form.checkValidity()) {
-    saveButton.disabled = true;
-    downloads.hidden = true;
-    showPreview(
-      buildSvg(exampleConfig()),
-      "Przykładowa tabliczka: Słoneczna 12A, Osiedle Wilga",
-      SIZES["40x35"].label
-    );
-    proofHeading.textContent = "Przykładowy wzór";
-    proofSubtitle.textContent = "Przykładowy adres: Słoneczna 12A, Osiedle Wilga.";
-    setStatus("Wpisz ulicę i numer domu, aby przygotować własny podgląd.");
-    return;
-  }
+  const ready = form.checkValidity();
   saveButton.disabled = true;
   downloads.hidden = true;
-  setStatus("Aktualizuję podgląd…");
   try {
     const config = configFromForm();
-    showPreview(
-      buildSvg(config),
-      `Podgląd tabliczki dla adresu ${form.elements.ulica.value} ${form.elements.numer.value}`,
-      SIZES[size.value].label
-    );
-    proofHeading.textContent = "Podgląd do druku";
-    proofSubtitle.textContent = "Proporcje i układ odpowiadają gotowej tabliczce.";
-    saveButton.disabled = false;
-    setStatus("Podgląd jest aktualny.");
+    const label = config.rodzaj === "ulica"
+      ? `Tablica z nazwą ulicy ${config.ulica}`
+      : `Tabliczka adresowa ${config.ulica} ${config.numer}`;
+    showPreview(buildSvg(config), `${label}, ${config.miejscowosc}`, SIZES[config.rozmiar].label);
+    if (ready) {
+      proofHeading.textContent = "Podgląd do druku";
+      proofSubtitle.textContent = "Proporcje i układ odpowiadają gotowej tabliczce.";
+      saveButton.disabled = false;
+      setStatus("Podgląd jest aktualny.");
+    } else {
+      proofHeading.textContent = "Podgląd";
+      proofSubtitle.textContent = `Puste pola pokazują przykład: ${EXAMPLES[config.rodzaj].opis}.`;
+      setStatus(config.rodzaj === "ulica"
+        ? "Wpisz nazwę ulicy i numery domów, aby przygotować pliki."
+        : "Wpisz ulicę i numer domu, aby przygotować pliki.");
+    }
   } catch (error) {
     preview.hidden = true;
     document.querySelector("#placeholder").hidden = false;
@@ -391,7 +476,7 @@ async function prepareDownloads(event) {
     const filename = [
       escapeFilename(config.miejscowosc),
       escapeFilename(config.ulica),
-      escapeFilename(config.numer),
+      config.rodzaj === "ulica" ? "tablica-ulicy" : escapeFilename(config.numer),
       config.rozmiar.replace(".", "-"),
       config.herb === "brak" ? "bez-herbu" : config.herb,
       config.paleta
@@ -440,6 +525,7 @@ async function loadSvgAsset(path) {
 
 async function initialize() {
   setLocalityOptions();
+  updateTypeControls();
   updateLocalityControls();
   updateSwatches();
   try {
@@ -471,10 +557,17 @@ customLocality.addEventListener("input", () => {
 palette.addEventListener("change", selectPaletteColors);
 textColor.addEventListener("input", markCustomPalette);
 backgroundColor.addEventListener("input", markCustomPalette);
-for (const control of [prefix, crest, size, form.elements.wielkosc_liter]) {
+for (const control of [prefix, crest, size, form.elements.wielkosc_liter, form.elements.strzalka]) {
   control.addEventListener("change", schedulePreview);
 }
-form.elements.ulica.addEventListener("input", schedulePreview);
-form.elements.numer.addEventListener("input", schedulePreview);
+for (const control of [signType, numbers]) {
+  control.addEventListener("change", () => {
+    updateTypeControls();
+    schedulePreview();
+  });
+}
+for (const name of ["ulica", "numer", "numer_lewy", "numer_prawy"]) {
+  form.elements[name].addEventListener("input", schedulePreview);
+}
 form.addEventListener("submit", prepareDownloads);
 initialize();

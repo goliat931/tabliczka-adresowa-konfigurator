@@ -90,6 +90,8 @@
     input[type="checkbox"] { width: 19px; height: 19px; margin: 0; accent-color: var(--leaf); }
     .help { margin: 6px 0 0; color: var(--muted); font-size: 12px; line-height: 1.45; }
     .custom-locality { margin-top: 12px; }
+    .number-range { display: grid; grid-template-columns: 1fr 1.2fr 1fr; gap: 10px; }
+    .number-range .field { margin-bottom: 0; }
     [hidden] { display: none !important; }
     .palette-warning {
       margin: 0 0 14px;
@@ -246,6 +248,16 @@
     </div>
     <div class="workbench">
       <form class="settings" id="sign-form">
+        <section class="form-section" aria-labelledby="type-heading">
+          <h2 class="section-heading" id="type-heading">Rodzaj tabliczki</h2>
+          <div class="field">
+            <label for="type">Co chcesz przygotować?</label>
+            <select id="type" name="rodzaj">
+              <option value="adres">Tabliczka adresowa na dom</option>
+              <option value="ulica">Nazwa ulicy na skrzyżowanie</option>
+            </select>
+          </div>
+        </section>
         <section class="form-section" aria-labelledby="address-heading">
           <h2 class="section-heading" id="address-heading">Adres</h2>
           <div class="field">
@@ -254,7 +266,7 @@
           </div>
           <label class="street-prefix" for="prefix">
             <input id="prefix" name="prefiks" type="checkbox" checked>
-            <span>Dodaj prefiks „ULICA”</span>
+            <span id="prefix-label">Dodaj prefiks „ULICA”</span>
           </label>
           <div class="field">
             <label for="letter-case">Zapis nazwy ulicy</label>
@@ -264,9 +276,35 @@
               <option value="wpisane">Tak jak wpisano</option>
             </select>
           </div>
-          <div class="field">
+          <div class="field" id="number-field">
             <label for="number">Numer domu</label>
             <input id="number" name="numer" type="text" maxlength="20" required autocomplete="address-line2" placeholder="np. 12A">
+          </div>
+          <div class="field">
+            <div id="street-numbers" hidden>
+              <label class="toggle-row" for="numbers">
+                <input id="numbers" name="numery" type="checkbox" checked>
+                <span>Numery domów ze strzałką</span>
+              </label>
+              <div class="number-range" id="number-range">
+                <div class="field">
+                  <label for="number-left">Po lewej</label>
+                  <input id="number-left" name="numer_lewy" type="text" maxlength="8" placeholder="np. 11">
+                </div>
+                <div class="field">
+                  <label for="arrow">Strzałka</label>
+                  <select id="arrow" name="strzalka">
+                    <option value="prawo">w prawo →</option>
+                    <option value="lewo">← w lewo</option>
+                  </select>
+                </div>
+                <div class="field">
+                  <label for="number-right">Po prawej</label>
+                  <input id="number-right" name="numer_prawy" type="text" maxlength="8" placeholder="np. 1">
+                </div>
+              </div>
+              <p class="help">Numery domów na tym odcinku ulicy. Pokazują się na dole po lewej, np. „11 → 1”.</p>
+            </div>
           </div>
           <div class="field">
             <label for="locality">Miejscowość</label>
@@ -282,10 +320,7 @@
           <h2 class="section-heading" id="format-heading">Format i herb</h2>
           <div class="field">
             <label for="size">Rozmiar tabliczki</label>
-            <select id="size" name="rozmiar">
-              <option value="40x35">40 × 35 cm</option>
-              <option value="20x17.5">20 × 17,5 cm — połowa</option>
-            </select>
+            <select id="size" name="rozmiar"></select>
           </div>
           <div class="field">
             <label for="crest">Herb</label>
@@ -341,7 +376,7 @@
         </div>
         <div class="proof-stage">
           <div class="proof-mat">
-            <img class="proof-image" id="preview" src="./assets/sample.svg" alt="Przykładowa tabliczka adresowa">
+            <img class="proof-image" id="preview" alt="">
             <p id="placeholder" hidden>Nie udało się przygotować podglądu. Spróbuj ponownie.</p>
           </div>
         </div>
