@@ -20,7 +20,7 @@
       --line: var(--border);
       --error: #b3261e;
       --success: var(--link);
-      --radius: 10px;
+      --radius: 18px;
       --warn-bg: #fff4d6; --warn-border: #9b6a13; --warn-text: #50370d;
     }
     @media (prefers-color-scheme: dark) {
@@ -49,9 +49,9 @@
     }
     .settings, .proof {
       min-width: 0;
-      border: 1px solid var(--line);
       border-radius: var(--radius);
       background: var(--paper);
+      box-shadow: var(--shadow-sm);
     }
     .settings { padding: 22px 24px; }
     .form-section + .form-section { margin-top: 20px; padding-top: 19px; border-top: 1px solid var(--line); }
@@ -68,7 +68,7 @@
       width: 100%;
       min-height: 44px;
       border: 1px solid var(--border-strong);
-      border-radius: 6px;
+      border-radius: 10px;
       background: var(--bg);
       padding: 9px 11px;
       color: var(--ink);
@@ -96,7 +96,7 @@
     .palette-warning {
       margin: 0 0 14px;
       border: 1px solid var(--warn-border);
-      border-radius: 6px;
+      border-radius: 10px;
       padding: 11px 12px;
       background: var(--warn-bg);
       color: var(--warn-text);
@@ -112,7 +112,7 @@
       flex: 0 0 auto;
       padding: 3px;
       border: 1px solid var(--border-strong);
-      border-radius: 6px;
+      border-radius: 10px;
       background: var(--surface);
       cursor: pointer;
     }
@@ -121,7 +121,7 @@
       gap: 7px;
       margin-top: 13px;
       border: 1px solid var(--border);
-      border-radius: 6px;
+      border-radius: 10px;
       padding: 7px;
       background: var(--surface-2);
     }
@@ -148,7 +148,7 @@
       background: var(--surface-2);
       color: var(--link);
       font-size: 12px;
-      font-weight: 750;
+      font-weight: 600;
       font-variant-numeric: tabular-nums;
     }
     .proof-stage {
@@ -186,13 +186,13 @@
       min-height: 46px;
       flex: 0 0 auto;
       border: 1px solid var(--leaf-dark);
-      border-radius: 6px;
+      border-radius: 999px;
       padding: 10px 16px;
       background: var(--leaf);
       color: white;
       font: inherit;
       font-size: 14px;
-      font-weight: 750;
+      font-weight: 600;
       cursor: pointer;
     }
     .save-button:hover:not(:disabled) { background: var(--leaf-dark); }
@@ -233,12 +233,13 @@
 </head>
 <body>
   <header class="wilga-bar">
-    <a class="wilga-brand" href="https://wilga.goliat.dev/"><svg class="wilga-znak" viewBox="-6 -6 208 128" fill="none" stroke="currentColor" stroke-width="10" stroke-linecap="square" aria-hidden="true"><path d="M4 74 61 44 124 72M19 72v39h135M109 72v36M154 4v107M136 24l18 10M120 48l34 21M154 42l18-8M154 76l37-15"/></svg><span>Osiedle Wilga</span></a>
+    <a class="wilga-brand" href="https://wilga.goliat.dev/"><svg class="wilga-znak" viewBox="-6 -6 208 128" fill="none" stroke="currentColor" stroke-width="10" stroke-linecap="square" aria-hidden="true"><path d="M4 74 61 44 124 72M19 72v39h135M109 72v36M154 4v107M136 24l18 10M120 48l34 21M154 42l18-8M154 76l37-15"/></svg><span>Osiedle Wilga<small>gmina Wilga</small></span></a>
     <nav class="wilga-nav" aria-label="Projekty Osiedla Wilga">
       <a href="https://mapa-osiedle-wilga.goliat.dev/">Mapa</a>
       <a href="https://tabliczki-adresowe.goliat.dev/" aria-current="page">Tabliczki adresowe</a>
     <a href="https://wilga.goliat.dev/historia">Historia</a>
   </nav>
+    <p class="wilga-stopka">Oddolna inicjatywa mieszkańca<br><a href="https://goliat.dev">goliat.dev</a></p>
   </header>
   <main>
     <div class="page-heading">
