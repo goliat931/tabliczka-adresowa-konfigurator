@@ -1,43 +1,49 @@
-/* Osiedle Wilga — wspólny motyw trzech stron (wilga / mapa-osiedle-wilga / tabliczki-adresowe).
+/* Osiedle Wilga — wspólny motyw (neutralne tła slate, grafitowy tekst, zieleń tylko jako akcent) trzech stron (wilga / mapa-osiedle-wilga / tabliczki-adresowe).
    Ten sam plik leży w każdym repozytorium; zmieniasz go w jednym, kopiujesz do pozostałych. */
 :root {
   color-scheme: light;
-  --wilga: #13864e;          /* Zieleń Wilgi, rgb(19,134,78) */
-  --wilga-hover: #0e6b3e;
+  /* Zieleń Wilgi tylko jako akcent: przycisk główny, stan aktywny, focus, znak. Nigdy jako tło sekcji. */
+  --wilga: #2d6a4f;
+  --wilga-hover: #1e3a2f;
   --on-wilga: #ffffff;
-  --link: #10703f;
+  --link: #2d6a4f;
   --bg: #ffffff;
   --surface: #ffffff;
-  --surface-2: #f3f4f5;
-  --text: #1b1d1f;
-  --muted: #5c6166;
-  --border: #dde0e3;
-  --border-strong: #b9bec4;
+  --surface-2: #f1f5f9;
+  --surface-3: #f8fafc;
+  --text: #0f172a;
+  --muted: #64748b;
+  --border: #e2e8f0;
+  --border-strong: #cbd5e1;
   --edge: transparent;      /* obramowanie elementów z cieniem: w jasnym wystarcza cień */
-  --focus: #13864e;
-  --shadow: 0 1px 2px rgb(0 0 0 / 8%), 0 4px 14px rgb(0 0 0 / 7%);
-  --font: system-ui, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --focus: #2d6a4f;
+  --shadow: 0 1px 2px rgb(15 23 42 / 6%), 0 4px 16px rgb(15 23 42 / 6%);
+  --font: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
   --bar-h: 52px;
 }
 @media (prefers-color-scheme: dark) {
   :root {
     color-scheme: dark;
-    --wilga: #13864e;
-    --link: #5fd39a;
-    --bg: #121314;
-    --surface: #1c1d1f;
-    --surface-2: #26282b;
-    --text: #e8eaec;
-    --muted: #a3a8ae;
-    --border: #34373b;
-    --border-strong: #4a4e53;
-    --edge: #34373b;
-    --focus: #5fd39a;
+    --wilga: #2d6a4f;
+    --wilga-hover: #3a8463;
+    --link: #74c69d;
+    --bg: #0f172a;
+    --surface: #1e293b;
+    --surface-2: #273449;
+    --surface-3: #172033;
+    --text: #f1f5f9;
+    --muted: #94a3b8;
+    --border: #334155;
+    --border-strong: #475569;
+    --edge: #334155;
+    --focus: #74c69d;
     --shadow: 0 1px 2px rgb(0 0 0 / 40%), 0 6px 18px rgb(0 0 0 / 35%);
   }
 }
 
-::selection { background: color-mix(in srgb, var(--wilga) 28%, transparent); }
+::selection { background: color-mix(in srgb, var(--wilga) 22%, transparent); }
+body { -webkit-font-smoothing: antialiased; }
+h1, h2, h3 { letter-spacing: -0.015em; }
 :focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
 a { color: var(--link); text-underline-offset: 3px; }
 
@@ -54,7 +60,7 @@ a { color: var(--link); text-underline-offset: 3px; }
 .wilga-brand {
   display: flex; align-items: center; gap: 9px;
   color: var(--text); text-decoration: none;
-  font-weight: 700; font-size: 15px; letter-spacing: .01em; white-space: nowrap;
+  font-weight: 600; font-size: 15px; letter-spacing: -0.01em; white-space: nowrap;
 }
 .wilga-znak { width: 44px; height: 27px; color: var(--link); flex: none; }
 .wilga-nav { display: flex; height: 100%; gap: 4px; overflow-x: auto; scrollbar-width: none; }
@@ -62,11 +68,11 @@ a { color: var(--link); text-underline-offset: 3px; }
   display: flex; align-items: center; height: 100%;
   padding: 0 12px;
   color: var(--muted); text-decoration: none;
-  font-size: 14px; font-weight: 600; white-space: nowrap;
+  font-size: 14px; font-weight: 500; white-space: nowrap;
   border-bottom: 2px solid transparent; margin-bottom: -1px;
 }
 .wilga-nav a:hover { color: var(--text); }
-.wilga-nav a[aria-current="page"] { color: var(--link); border-bottom-color: var(--wilga); }
+.wilga-nav a[aria-current="page"] { color: var(--text); font-weight: 600; border-bottom-color: var(--link); }
 @media (max-width: 520px) {
   .wilga-bar { gap: 10px; padding: 0 10px; }
   .wilga-brand span { display: none; }
@@ -75,13 +81,13 @@ a { color: var(--link); text-underline-offset: 3px; }
 
 /* Przyciski */
 .btn-primary {
-  border: 1px solid var(--wilga); border-radius: 7px;
+  border: 1px solid var(--wilga); border-radius: 8px;
   background: var(--wilga); color: var(--on-wilga);
-  font: inherit; font-weight: 650; cursor: pointer;
+  font: inherit; font-weight: 600; cursor: pointer;
 }
 .btn-primary:hover:not(:disabled) { background: var(--wilga-hover); border-color: var(--wilga-hover); }
 .btn-secondary {
-  border: 1px solid var(--border-strong); border-radius: 7px;
+  border: 1px solid var(--border-strong); border-radius: 8px;
   background: var(--surface); color: var(--text);
   font: inherit; cursor: pointer;
 }
