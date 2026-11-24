@@ -1,5 +1,5 @@
 /* Osiedle Wilga: wspólny motyw stron (wilga / mapa-osiedle-wilga / tabliczki-adresowe / robocze / serwer).
-   Zasady: STYLE-GUIDE goliat.dev + sekcja „UI i design system” w CLAUDE.md.
+   Zasady: Strona/DESIGN-SYSTEM.md (Goliat Design System dla Osiedla Wilga) + STYLE-GUIDE goliat.dev.
    Ten sam plik (i katalog fonts/) leży w każdym repozytorium; zmieniasz go w Strona/, kopiujesz do pozostałych. */
 @import url("fonts/plex.css");
 
@@ -9,11 +9,14 @@
   --bg: #ffffff;
   --sidebar-bg: #f8fafc;
   --surface: #ffffff;
+  --surface-subtle: #f8fafc;
   --surface-muted: #f1f5f9;
   --border: #e2e8f0;
+  --border-strong: #cbd5e1;
   --text: #0f172a;
-  --text-muted: #64748b;
+  --text-muted: #475569;
   --accent: #2d6a4f;          /* Zieleń Wilgi jako akcent: 10%, nigdy tło dużej powierzchni */
+  --accent-hover: #1e3a2f;
   --accent-on: #ffffff;
   --accent-soft: rgb(45 106 79 / 11%);
   --focus: #2d6a4f;
@@ -21,18 +24,23 @@
   --shadow-md: 0 2px 4px rgb(15 23 42 / 6%), 0 14px 28px rgb(15 23 42 / 10%);
   --font: "IBM Plex Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
   --mono: "IBM Plex Mono", ui-monospace, "SFMono-Regular", Consolas, monospace;
+  --radius-pill: 999px;
   --radius-card: 18px;
+  --radius-inset: 14px;
+  --radius-field: 12px;
+  /* stany semantyczne: zawsze z drugim nośnikiem (tekst, ikona) */
+  --warning: #92400e; --warning-dot: #d97706; --warning-soft: rgb(217 119 6 / 14%);
+  --danger: #b91c1c; --danger-dot: #dc2626; --danger-soft: rgb(220 38 38 / 12%);
   --side-w: 264px;
   --bar-h: 56px;
   /* starsze nazwy, których używają strony */
   --wilga: var(--accent);
-  --wilga-hover: #1e3a2f;
+  --wilga-hover: var(--accent-hover);
   --on-wilga: var(--accent-on);
   --link: #2d6a4f;
   --surface-2: var(--surface-muted);
-  --surface-3: #f8fafc;
+  --surface-3: var(--surface-subtle);
   --muted: var(--text-muted);
-  --border-strong: #cbd5e1;
   --edge: transparent;
   --shadow: var(--shadow-sm);
 }
@@ -44,7 +52,8 @@
     --accent: #2d6a4f; --accent-on: #ffffff; --accent-soft: rgb(116 198 157 / 14%); --focus: #74c69d;
     --shadow-sm: 0 1px 2px rgb(0 0 0 / 45%), 0 8px 20px rgb(0 0 0 / 40%);
     --shadow-md: 0 2px 6px rgb(0 0 0 / 50%), 0 16px 36px rgb(0 0 0 / 55%);
-    --wilga-hover: #3a8463; --link: #74c69d; --surface-3: #172033; --border-strong: #475569; --edge: #334155;
+    --accent-hover: #3a8463; --link: #74c69d; --surface-subtle: #172033; --border-strong: #475569; --edge: #334155;
+    --warning: #fbbf24; --warning-soft: rgb(251 191 36 / 16%); --danger: #fca5a5; --danger-soft: rgb(248 113 113 / 16%);
   }
 }
 :root[data-theme="dark"] {
@@ -54,8 +63,14 @@
   --accent: #2d6a4f; --accent-on: #ffffff; --accent-soft: rgb(116 198 157 / 14%); --focus: #74c69d;
   --shadow-sm: 0 1px 2px rgb(0 0 0 / 45%), 0 8px 20px rgb(0 0 0 / 40%);
   --shadow-md: 0 2px 6px rgb(0 0 0 / 50%), 0 16px 36px rgb(0 0 0 / 55%);
-  --wilga-hover: #3a8463; --link: #74c69d; --surface-3: #172033; --border-strong: #475569; --edge: #334155;
+  --accent-hover: #3a8463; --link: #74c69d; --surface-subtle: #172033; --border-strong: #475569; --edge: #334155;
+  --warning: #fbbf24; --warning-soft: rgb(251 191 36 / 16%); --danger: #fca5a5; --danger-soft: rgb(248 113 113 / 16%);
 }
+
+/* reset i tło: tylko strony ze wspólnym paskiem (mapa dla służb ma własny układ w content-box i zostaje bez zmian);
+   :where() = zerowa specyficzność, więc lokalne ustawienia body (np. rozmiar tekstu historii) wygrywają */
+:where(body:has(> .wilga-bar)), :where(body:has(> .wilga-bar)) *, :where(body:has(> .wilga-bar)) ::before, :where(body:has(> .wilga-bar)) ::after { box-sizing: border-box; }
+:where(body:has(> .wilga-bar)) { margin: 0; background: var(--bg); color: var(--text); font-family: var(--font); line-height: 1.5; }
 
 ::selection { background: var(--accent-soft); }
 :focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
@@ -115,7 +130,20 @@ a { color: var(--link); text-underline-offset: 3px; }
   .wilga-nav a { min-height: 40px; padding: 0 14px; font-size: 14.5px; }
   .wilga-stopka { display: block; margin: auto 0 0; padding: 0 8px; font-size: 13px; line-height: 1.5; color: var(--text-muted); }
   .wilga-stopka a { color: inherit; }
+  /* zwijanie paska bocznego (wilga-pasek.js) */
+  :root { --wilga-zwijany: 1; }
+  .wilga-zwin, .wilga-otworz { display: grid; place-items: center; padding: 0; border: 0; border-radius: 50%; color: var(--text); cursor: pointer; }
+  .wilga-zwin { position: absolute; top: 18px; right: 12px; width: 36px; height: 36px; background: transparent; }
+  .wilga-zwin:hover { background: var(--surface-muted); }
+  .wilga-zwin svg, .wilga-otworz svg { width: 22px; height: 22px; }
+  .wilga-otworz { display: none; position: fixed; top: 12px; left: 12px; z-index: 60; width: 44px; height: 44px; background: var(--surface); box-shadow: var(--shadow-md); }
+  .wilga-otworz:hover { background: var(--surface-muted); }
+  .wilga-zwin:focus-visible, .wilga-otworz:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
+  :root[data-pasek-zwiniety] body:has(> .wilga-bar) { padding-left: 0; }
+  :root[data-pasek-zwiniety] .wilga-bar { display: none; }
+  :root[data-pasek-zwiniety] .wilga-otworz { display: grid; }
 }
+@media (max-width: 879px) { .wilga-zwin, .wilga-otworz { display: none; } }
 
 /* Przyciski: pigułki */
 .btn-primary {
@@ -125,11 +153,101 @@ a { color: var(--link); text-underline-offset: 3px; }
 }
 .btn-primary:hover:not(:disabled) { background: var(--wilga-hover); border-color: var(--wilga-hover); }
 .btn-secondary {
-  border: 1px solid var(--border); border-radius: 999px;
+  border: 1px solid var(--border-strong); border-radius: 999px;
   background: var(--surface); color: var(--text);
   font: inherit; cursor: pointer; box-shadow: var(--shadow-sm);
 }
-.btn-secondary:hover { background: var(--surface-muted); }
+.btn-secondary:hover:not(:disabled) { background: var(--surface-muted); border-color: var(--text); }
+.btn.btn-secondary { font-weight: 600; }   /* „font: inherit” wyżej zeruje grubość z .btn */
+
+/* ———————— Komponenty (DESIGN-SYSTEM.md, sekcja 10) ————————
+   Wszystkie przez :where(), czyli z zerową specyficznością: lokalne style strony (np. .panel mapy) zawsze wygrywają.
+   Same .btn-primary i .btn-secondary (wyżej) zostają bez zmian, bo używa ich mapa i historia; rozmiar daje klasa bazowa .btn. */
+:where(.btn) {
+  display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+  min-height: 42px; padding: 0 18px; border-radius: var(--radius-pill);
+  border: 1px solid var(--border-strong); background: var(--surface); color: var(--text);
+  font: inherit; font-weight: 600; line-height: 1.2; text-decoration: none; cursor: pointer;
+  transition: background-color .15s, border-color .15s, box-shadow .15s;
+}
+:where(.btn) svg { width: 18px; height: 18px; flex: none; }
+:where(.btn.btn-primary) { border-color: var(--accent); background: var(--accent); color: var(--accent-on); box-shadow: none; }
+:where(.btn.btn-primary):hover:not(:disabled) { border-color: var(--accent-hover); background: var(--accent-hover); }
+:where(.btn.btn-secondary) { border-color: var(--border-strong); box-shadow: none; }
+:where(.btn.btn-secondary):hover:not(:disabled) { background: var(--surface-muted); border-color: var(--text); box-shadow: var(--shadow-sm); }
+:where(.btn-icon) {
+  display: inline-grid; place-items: center; width: 40px; height: 40px; padding: 0;
+  border: 0; border-radius: 50%; background: transparent; color: var(--text); cursor: pointer;
+}
+:where(.btn-icon):hover:not(:disabled) { background: var(--surface-muted); }
+:where(.btn-icon) svg { width: 20px; height: 20px; }
+:where(.btn, .btn-icon, .btn-primary, .btn-secondary):disabled { opacity: .5; cursor: not-allowed; box-shadow: none; }
+
+/* przełącznik zakresu: szyna z opcjami; aktywna grafitowa i z cieniem (nie tylko kolor) */
+:where(.segmented) {
+  display: inline-flex; flex-wrap: nowrap; align-self: flex-start; gap: 2px; padding: 3px;
+  max-width: 100%; overflow-x: auto; scrollbar-width: none;
+  border-radius: var(--radius-pill); background: var(--surface-muted); box-shadow: inset 0 0 0 1px var(--border);
+}
+:where(.segmented) > button {
+  min-height: 34px; padding: 0 14px; border: 0; border-radius: var(--radius-pill);
+  background: transparent; color: var(--text-muted); font: inherit; font-size: 14px; font-weight: 500;
+  white-space: nowrap; cursor: pointer; transition: background-color .15s, color .15s;
+}
+:where(.segmented) > button:hover { color: var(--text); background: color-mix(in srgb, var(--text) 7%, transparent); }
+:where(.segmented) > button[aria-pressed="true"] { background: var(--text); color: var(--bg); font-weight: 600; box-shadow: var(--shadow-sm); }
+
+/* tagi i filtry */
+:where(.chip) {
+  display: inline-flex; align-items: center; gap: 6px; min-height: 34px; padding: 0 14px;
+  border: 1px solid var(--border-strong); border-radius: var(--radius-pill); background: var(--surface); color: var(--text);
+  font: inherit; font-size: 14px; font-weight: 500; cursor: pointer;
+}
+:where(.chip):hover { background: var(--surface-muted); }
+:where(.chip)[aria-pressed="true"] { background: var(--text); border-color: var(--text); color: var(--bg); }
+
+/* plakietki statusu: informacja zawsze także w tekście */
+:where(.badge) {
+  display: inline-flex; align-items: center; gap: 5px; padding: 2px 9px; border-radius: var(--radius-pill);
+  font-size: 12.5px; font-weight: 600; line-height: 1.5; white-space: nowrap;
+  background: var(--surface-muted); color: var(--text); box-shadow: inset 0 0 0 1px var(--border);
+}
+:where(.badge.badge-accent) { background: var(--accent-soft); color: var(--link); box-shadow: none; }
+:where(.badge.badge-neutral) { background: var(--surface-muted); color: var(--text); }
+:where(.badge.badge-warning) { background: var(--warning-soft); color: var(--warning); box-shadow: none; }
+:where(.badge.badge-danger) { background: var(--danger-soft); color: var(--danger); box-shadow: none; }
+
+/* karty i panele: głębia cieniem, nie ramką */
+:where(.panel, .card) { background: var(--surface); color: var(--text); border-radius: var(--radius-card); box-shadow: var(--shadow-sm); }
+:where(a.card, .card-interactive) { display: block; color: inherit; text-decoration: none; transition: box-shadow .2s, transform .2s; }
+:where(a.card, .card-interactive):hover { box-shadow: var(--shadow-md); transform: translateY(-3px); }
+:where(.inset) { border-radius: var(--radius-inset); background: var(--surface-subtle); }
+
+/* tabele; klasa .blokowa: poniżej 640 px wiersze jako bloki z etykietami data-label */
+:where(.table-wrap) { overflow-x: auto; border-radius: var(--radius-inset); box-shadow: inset 0 0 0 1px var(--border); }
+:where(.table-wrap) table { width: 100%; border-collapse: collapse; font-size: 14.5px; }
+:where(.table-wrap) :is(th, td) { padding: 10px 12px; text-align: left; border-bottom: 1px solid var(--border); vertical-align: top; }
+:where(.table-wrap) th { font-weight: 600; color: var(--text-muted); background: var(--surface-subtle); }
+@media (max-width: 639px) {
+  :where(.table-wrap.blokowa) thead { display: none; }
+  :where(.table-wrap.blokowa) :is(tr, td) { display: block; }
+  :where(.table-wrap.blokowa) td[data-label]::before { content: attr(data-label); display: block; font-size: 12.5px; font-weight: 600; color: var(--text-muted); }
+}
+
+/* pola formularzy (klasa .input; .field jest zajęte w konfiguratorze tabliczek) */
+:where(.input) {
+  width: 100%; min-height: 42px; padding: 8px 12px; border-radius: var(--radius-field);
+  border: 1px solid var(--border-strong); background: var(--bg); color: var(--text); font: inherit;
+}
+:where(.input):hover { border-color: var(--text-muted); }
+:where(.input)[aria-invalid="true"] { border-color: var(--danger-dot); }
+
+/* dialogi */
+:where(dialog.dialog) {
+  width: min(100% - 32px, 46rem); max-height: calc(100% - 32px); padding: 0; border: 0;
+  border-radius: var(--radius-card); background: var(--surface); color: var(--text); box-shadow: var(--shadow-md);
+}
+:where(dialog.dialog)::backdrop { background: rgb(15 23 42 / 55%); }
 
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation-duration: 0s !important; transition-duration: 0s !important; scroll-behavior: auto !important; }
